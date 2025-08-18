@@ -58,7 +58,10 @@ export default function Header() {
               <Ruler className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1
+                className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                onClick={() => navigate("/")}
+              >
                 LatestFit
               </h1>
               <p className="text-xs text-gray-500 sm:block">

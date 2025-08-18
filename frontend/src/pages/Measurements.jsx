@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -10,6 +10,7 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const MeasurementsComponent = () => {
   const [measurements, setMeasurements] = useState([
@@ -71,6 +72,14 @@ const MeasurementsComponent = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [editingMeasurement, setEditingMeasurement] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.autoOpen) {
+      handleAddMeasurement();
+    }
+  }, [location.state]);
+
   const [formData, setFormData] = useState({
     customerId: "",
     customerName: "",

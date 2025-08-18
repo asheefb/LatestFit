@@ -5,6 +5,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const navigate = useNavigate();
+
   const handleLogin = (e) => {
     e.preventDefault();
     console.log("Login with", email, password);
@@ -34,6 +36,15 @@ export default function Login() {
         <button className="bg-indigo-600 text-white w-full py-2 rounded">
           Login
         </button>
+        <div className="ml-8">
+          <h5 className="text-lg font-semibold mb-2">Don't have an account?</h5>
+          <button
+            onClick={() => navigate("/register")}
+            className="text-blue-600 hover:underline"
+          >
+            Register
+          </button>
+        </div>
       </form>
     </div>
   );

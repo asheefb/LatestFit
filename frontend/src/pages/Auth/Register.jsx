@@ -5,6 +5,7 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const handleSubmit = (e) => {
@@ -38,7 +39,18 @@ export default function Register() {
           placeholder="Password"
           className="w-full border p-2 mb-4"
           value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, password: e.target.value })
+          }
+        />
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          className="w-full border p-2 mb-4"
+          value={formData.confirmPassword}
+          onChange={(e) =>
+            setFormData({ ...formData, confirmPassword: e.target.value })
+          }
         />
         <button className="bg-indigo-600 text-white w-full py-2 rounded">
           Register
