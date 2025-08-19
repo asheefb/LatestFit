@@ -16,9 +16,9 @@ public class Shirt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    private Long customerId;
+    private Integer customerId;
 
     private double length;
 

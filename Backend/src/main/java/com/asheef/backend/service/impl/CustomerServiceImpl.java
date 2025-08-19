@@ -138,4 +138,9 @@ public class CustomerServiceImpl implements CustomerService {
             );
         }
     }
+
+    @Override
+    public ResponseEntity<ResponseDto> deleteCustomer(Integer customerId) {
+        return null;
+    }
 }

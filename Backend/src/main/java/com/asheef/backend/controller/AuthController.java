@@ -1,18 +1,13 @@
 package com.asheef.backend.controller;
 
 import com.asheef.backend.model.dto.LoginDto;
+import com.asheef.backend.model.dto.RegisterDto;
 import com.asheef.backend.model.response.LoginResponse;
-import com.asheef.backend.security.JwtUtils;
 import com.asheef.backend.service.UserService;
+import com.asheef.backend.utils.ResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,7 +20,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginDto dto) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginDto dto) {
         return userService.login(dto);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDto> register(@RequestBody @Valid RegisterDto dto) {
+        return userService.register(dto);
     }
 }
