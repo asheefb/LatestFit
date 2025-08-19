@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,13 +30,13 @@ public class CustomerServiceImpl implements CustomerService {
         ResponseDto response;
         HttpStatus httpStatus;
         try {
-
-
             Customer customer = new Customer();
             customer.setName(dto.getName());
             customer.setPhone(dto.getPhone());
             customer.setEmail(dto.getEmail());
             customer.setAddress(dto.getAddress());
+            customer.setCreatedAt(new Date());
+            customer.setUpdatedAt(new Date());
 
             customerRepository.save(customer);
 
@@ -73,6 +74,7 @@ public class CustomerServiceImpl implements CustomerService {
                 customer.setAddress(dto.getAddress());
             }
 
+            customer.setUpdatedAt(new Date());
             customerRepository.save(customer);
 
             return ResponseEntity.ok(
