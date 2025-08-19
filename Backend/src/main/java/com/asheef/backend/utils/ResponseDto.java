@@ -1,5 +1,6 @@
 package com.asheef.backend.utils;
 
+import com.asheef.backend.model.response.CustomerResponseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class ResponseDto {
     private Integer statusCode;
 
     private Object data;
-    
+
     private List<Object> datas;
 
     private String message;
@@ -27,5 +28,11 @@ public class ResponseDto {
         this.success = success;
         this.statusCode = statusCode;
         this.message = message;
+    }
+
+    public ResponseDto(Boolean success, Integer statusCode, Object data) {
+        this.success = success;
+        this.statusCode = statusCode;
+        this.data = data;
     }
 }

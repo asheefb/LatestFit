@@ -4,6 +4,7 @@ import com.asheef.backend.constants.Constants;
 import com.asheef.backend.model.dto.CustomerDto;
 import com.asheef.backend.model.dto.CustomerUpdateDto;
 import com.asheef.backend.model.entity.Customer;
+import com.asheef.backend.model.response.CustomerResponseEntity;
 import com.asheef.backend.repository.CustomerRepository;
 import com.asheef.backend.service.CustomerService;
 import com.asheef.backend.utils.ResponseDto;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -27,13 +30,13 @@ public class CustomerServiceImpl implements CustomerService {
         ResponseDto response;
         HttpStatus httpStatus;
         try {
-
-
             Customer customer = new Customer();
             customer.setName(dto.getName());
             customer.setPhone(dto.getPhone());
             customer.setEmail(dto.getEmail());
             customer.setAddress(dto.getAddress());
+            customer.setCreatedAt(new Date());
+            customer.setUpdatedAt(new Date());
 
             customerRepository.save(customer);
 
@@ -71,12 +74,16 @@ public class CustomerServiceImpl implements CustomerService {
                 customer.setAddress(dto.getAddress());
             }
 
+            customer.setUpdatedAt(new Date());
             customerRepository.save(customer);
 
             return ResponseEntity.ok(
                     new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), Constants.CUSTOMER_UPDATED_SUCCESSFULLY)
             );
 
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(Boolean.FALSE, HttpStatus.NOT_FOUND.value(), e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.unprocessableEntity().body(
                     new ResponseDto(Boolean.FALSE, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.UNABLE_TO_UPDATE_CUSTOMER)
@@ -87,13 +94,48 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<ResponseDto> viewCustomer(Integer customerId) {
 
+        try {
+            if (customerId == null || customerId <= 0)
+                throw new IllegalArgumentException("Customer id is required");
 
+            CustomerResponseEntity response = customerRepository.findCustomerById(customerId)
+                    .orElseThrow(() -> new NoSuchElementException("Customer not found"));
 
-        return null;
+            return ResponseEntity.ok(
+                    new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), response)
+            );
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseDto(Boolean.FALSE, HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(Boolean.FALSE, HttpStatus.NOT_FOUND.value(), e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.unprocessableEntity().body(
+                    new ResponseDto(Boolean.FALSE, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.ERROR_FETCHING_CUSTOMER)
+            );
+        }
     }
 
     @Override
     public ResponseEntity<ResponseDto> searchCustomers(String regex) {
-        return null;
+
+        try {
+            List<CustomerResponseEntity> customers = customerRepository.findCustomersBySearch(regex);
+
+            if (!customers.isEmpty()) {
+                return ResponseEntity.ok(
+                        new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), customers)
+                );
+            } else {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), List.of()));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.unprocessableEntity().body(
+                    new ResponseDto(Boolean.FALSE, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.ERROR_FETCHING_CUSTOMER)
+            );
+        }
     }
 }
