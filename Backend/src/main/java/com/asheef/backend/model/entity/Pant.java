@@ -19,15 +19,15 @@ public class Pant {
 
     private Integer customerId;
 
-    private double length;
+    private Double length;
 
-    private double trunk;
+    private Double trunk;
 
-    private double hip;
+    private Double hip;
 
-    private double legs;
+    private Double legs;
 
-    private double knee;
+    private Double knee;
 
-    private double bottom;
+    private Double bottom;
 }

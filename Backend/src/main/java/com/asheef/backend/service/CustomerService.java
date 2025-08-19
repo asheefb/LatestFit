@@ -13,4 +13,6 @@ public interface CustomerService {
     ResponseEntity<ResponseDto> viewCustomer(Integer customerId);
 
     ResponseEntity<ResponseDto> searchCustomers(String regex);
+
+    ResponseEntity<ResponseDto> deleteCustomer(Integer customerId);
 }
