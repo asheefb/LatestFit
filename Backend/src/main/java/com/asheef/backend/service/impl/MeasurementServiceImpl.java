@@ -6,6 +6,7 @@ import com.asheef.backend.model.entity.Pant;
 import com.asheef.backend.model.entity.Shirt;
 import com.asheef.backend.model.response.DashBoardItems;
 import com.asheef.backend.repository.CustomerRepository;
+import com.asheef.backend.repository.measurement.MeasurementRepository;
 import com.asheef.backend.repository.measurement.PantRepository;
 import com.asheef.backend.repository.measurement.ShirtRepository;
 import com.asheef.backend.service.MeasurementService;
@@ -15,28 +16,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
 public class MeasurementServiceImpl implements MeasurementService {
 
     private final CustomerRepository customerRepository;
-
     private final PantRepository pantRepository;
-
     private final ShirtRepository shirtRepository;
+    private final MeasurementRepository measurementRepository;
 
-    public MeasurementServiceImpl(CustomerRepository customerRepository, PantRepository pantRepository, ShirtRepository shirtRepository) {
+    public MeasurementServiceImpl(CustomerRepository customerRepository,
+                                  PantRepository pantRepository,
+                                  ShirtRepository shirtRepository,
+                                  MeasurementRepository measurementRepository) {
         this.customerRepository = customerRepository;
         this.pantRepository = pantRepository;
         this.shirtRepository = shirtRepository;
+        this.measurementRepository = measurementRepository;
     }
 
     @Override
     public ResponseEntity<ResponseDto> addMeasurement(MeasurementDto dto) {
-
         try {
             if (dto.getType().equals(Constants.PANT)) {
                 Pant pant = new Pant();
@@ -47,8 +51,9 @@ public class MeasurementServiceImpl implements MeasurementService {
                 pant.setLegs(Double.valueOf(dto.getPantLegs()));
                 pant.setKnee(Double.valueOf(dto.getPantKnee()));
                 pant.setBottom(Double.valueOf(dto.getPantBottom()));
-                pant.setCustomerId(Integer.valueOf(dto.getCustomerId()));
+                pant.setCreatedAt(LocalDate.now());
                 pantRepository.save(pant);
+
             } else if (dto.getType().equals(Constants.SHIRT)) {
                 Shirt shirt = new Shirt();
                 shirt.setCustomerId(Integer.valueOf(dto.getCustomerId()));
@@ -58,114 +63,115 @@ public class MeasurementServiceImpl implements MeasurementService {
                 shirt.setShoulder(Double.parseDouble(dto.getShirtShoulder()));
                 shirt.setSleeves(Double.parseDouble(dto.getShirtSleeves()));
                 shirt.setCollar(Double.parseDouble(dto.getShirtCollar()));
+                shirt.setCuffLength(Double.parseDouble(dto.getShirtCoupLength()));
+                shirt.setCreatedAt(LocalDate.now());
                 shirtRepository.save(shirt);
             }
+
             return ResponseEntity.ok(
-                    new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), Constants.MEASUREMENT_ADDED_SUCCESSFULLY)
+                    new ResponseDto(true, HttpStatus.OK.value(), Constants.MEASUREMENT_ADDED_SUCCESSFULLY)
             );
+
         } catch (Exception e) {
             return ResponseEntity.unprocessableEntity().body(
-                    new ResponseDto(Boolean.FALSE, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.UNABLE_TO_ADD_MEASUREMENT)
+                    new ResponseDto(false, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.UNABLE_TO_ADD_MEASUREMENT)
             );
         }
     }
 
     @Override
     public ResponseEntity<ResponseDto> updateMeasurement(String id, MeasurementDto dto) {
-
         try {
+            Integer measurementId = Integer.valueOf(id);
+
             if (dto.getType().equals(Constants.PANT)) {
-                Pant pant = pantRepository.findById(Integer.valueOf(id))
+                Pant pant = pantRepository.findById(measurementId)
                         .orElseThrow(() -> new NoSuchElementException("Pant not found"));
 
-                if (!pant.getBottom().equals(Double.valueOf(dto.getPantBottom())))
-                    pant.setBottom(Double.valueOf(dto.getPantBottom()));
+                if (dto.getPantLength() != null) pant.setLength(Double.valueOf(dto.getPantLength()));
+                if (dto.getPantTrunk() != null) pant.setTrunk(Double.valueOf(dto.getPantTrunk()));
+                if (dto.getPantHip() != null) pant.setHip(Double.valueOf(dto.getPantHip()));
+                if (dto.getPantLegs() != null) pant.setLegs(Double.valueOf(dto.getPantLegs()));
+                if (dto.getPantKnee() != null) pant.setKnee(Double.valueOf(dto.getPantKnee()));
+                if (dto.getPantBottom() != null) pant.setBottom(Double.valueOf(dto.getPantBottom()));
 
-                if (!pant.getHip().equals(Double.valueOf(dto.getPantHip())))
-                    pant.setHip(Double.valueOf(dto.getPantHip()));
+                pant.setUpdatedAt(LocalDate.now());
+                pantRepository.save(pant);
 
-                if (!pant.getKnee().equals(Double.valueOf(dto.getPantKnee())))
-                    pant.setKnee(Double.valueOf(dto.getPantKnee()));
-
-                if (!pant.getLegs().equals(Double.valueOf(dto.getPantLegs())))
-                    pant.setLegs(Double.valueOf(dto.getPantLegs()));
-
-                if (!pant.getLength().equals(Double.valueOf(dto.getPantLength())))
-                    pant.setLength(Double.valueOf(dto.getPantLength()));
-
-                if (!pant.getTrunk().equals(Double.valueOf(dto.getPantTrunk())))
-                    pant.setTrunk(Double.valueOf(dto.getPantTrunk()));
             } else if (dto.getType().equals(Constants.SHIRT)) {
-                Shirt shirt = shirtRepository.findById(Integer.valueOf(id))
+                Shirt shirt = shirtRepository.findById(measurementId)
                         .orElseThrow(() -> new NoSuchElementException("Shirt not found"));
 
-                if (!shirt.getLength().equals(Double.valueOf(dto.getShirtLength())))
-                    shirt.setLength(Double.valueOf(dto.getShirtLength()));
+                if (dto.getShirtLength() != null) shirt.setLength(Double.valueOf(dto.getShirtLength()));
+                if (dto.getShirtChest() != null) shirt.setChest(Double.valueOf(dto.getShirtChest()));
+                if (dto.getShirtWaist() != null) shirt.setWaist(Double.valueOf(dto.getShirtWaist()));
+                if (dto.getShirtShoulder() != null) shirt.setShoulder(Double.valueOf(dto.getShirtShoulder()));
+                if (dto.getShirtSleeves() != null) shirt.setSleeves(Double.valueOf(dto.getShirtSleeves()));
+                if (dto.getShirtCollar() != null) shirt.setCollar(Double.valueOf(dto.getShirtCollar()));
+                if (dto.getShirtCoupLength() != null) shirt.setCuffLength(Double.valueOf(dto.getShirtCoupLength()));
 
-                if (!shirt.getChest().equals(Double.valueOf(dto.getShirtChest())))
-                    shirt.setChest(Double.valueOf(dto.getShirtChest()));
-
-                if (!shirt.getWaist().equals(Double.valueOf(dto.getShirtWaist())))
-                    shirt.setWaist(Double.valueOf(dto.getShirtWaist()));
-
-                if (!shirt.getShoulder().equals(Double.valueOf(dto.getShirtShoulder())))
-                    shirt.setShoulder(Double.valueOf(dto.getShirtShoulder()));
-
-                if (!shirt.getSleeves().equals(Double.valueOf(dto.getShirtSleeves())))
-                    shirt.setSleeves(Double.valueOf(dto.getShirtSleeves()));
-
-                if (!shirt.getCollar().equals(Double.valueOf(dto.getShirtCollar())))
-                    shirt.setCollar(Double.valueOf(dto.getShirtCollar()));
-
-                if (shirt.getCuffLength().equals(Double.valueOf(dto.getShirtCoupLength())))
-                    shirt.setCuffLength(Double.valueOf(dto.getShirtCoupLength()));
-
+                shirt.setUpdatedAt(LocalDate.now());
                 shirtRepository.save(shirt);
             }
 
             return ResponseEntity.ok(
-                    new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), Constants.MEASUREMENT_UPDATED_SUCCESSFULLY)
+                    new ResponseDto(true, HttpStatus.OK.value(), Constants.MEASUREMENT_UPDATED_SUCCESSFULLY)
             );
+
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseDto(Boolean.FALSE, HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                    .body(new ResponseDto(false, HttpStatus.NOT_FOUND.value(), e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.unprocessableEntity().body(
-                    new ResponseDto(Boolean.FALSE, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.UNABLE_TO_UPDATE_MEASUREMENT)
+                    new ResponseDto(false, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.UNABLE_TO_UPDATE_MEASUREMENT)
             );
         }
     }
 
+
     @Override
     public ResponseEntity<ResponseDto> viewAllMeasurementsOfCustomer(Integer customerId) {
+        try {
+            List<Pant> pants = pantRepository.findByCustomerId(customerId);
+            List<Shirt> shirts = shirtRepository.findByCustomerId(customerId);
 
-        return null;
+            // Combine both in one response DTO
+            Map<String, Object> result = new HashMap<>();
+            result.put("pants", pants);
+            result.put("shirts", shirts);
+
+            return ResponseEntity.ok(
+                    new ResponseDto(true, HttpStatus.OK.value(), result)
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.unprocessableEntity().body(
+                    new ResponseDto(false, HttpStatus.UNPROCESSABLE_ENTITY.value(), "Unable to fetch measurements")
+            );
+        }
     }
+
 
     @Override
     public ResponseEntity<ResponseDto> calculateDashboardItems(Integer userId) {
-
         try {
             DashBoardItems items = new DashBoardItems();
             LocalDate today = LocalDate.now();
 
-            List<Shirt> shirts = shirtRepository.findByCreatedAt(today);
-            List<Pant> pants = pantRepository.findByCreatedAt(today);
+            Integer measurementCount = measurementRepository.findByCreatedAt(today).size();
 
             Integer customerCount = customerRepository.findByCreatedAt(today).size();
 
-            Integer count = shirts.size() + pants.size();
-
-            items.setMeasurementsToday(String.valueOf(count));
+            items.setMeasurementsToday(String.valueOf(measurementCount));
             items.setNewCustomers(String.valueOf(customerCount));
 
-
+            return ResponseEntity.ok(
+                    new ResponseDto(true, HttpStatus.OK.value(), items)
+            );
         } catch (Exception e) {
-
+            return ResponseEntity.unprocessableEntity().body(
+                    new ResponseDto(false, HttpStatus.UNPROCESSABLE_ENTITY.value(), "Error calculating dashboard")
+            );
         }
-
-        return null;
     }
-
-
 }

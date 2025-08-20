@@ -13,5 +13,4 @@ public interface PantRepository extends JpaRepository<Pant, Integer> {
 
     List<Pant> findByCustomerId(Integer customerId);
 
-    List<Pant> findByCreatedAt(LocalDate createdAt);
 }

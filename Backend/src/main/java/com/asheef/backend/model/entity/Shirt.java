@@ -17,35 +17,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Shirt {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    private Integer customerId;
+public class Shirt extends Measurement{
 
     private Double length;
-
     private Double chest;
-
     private Double waist;
-
     private Double shoulder;
-
     private Double sleeves;
-
     private Double cuffLength;
-
     private Double collar;
-
-    private String status;
-
-    private LocalDate createdAt;
-
-    private LocalDate updatedAt;
-
-    private Integer updatedBy;
-
-    private Integer createdBy;
 }

@@ -14,7 +14,4 @@ public interface ShirtRepository extends JpaRepository<Shirt, Integer> {
 
     List<Shirt> findByCustomerId(Integer customerId);
 
-    List<Shirt> findByCreatedAt(LocalDate createdAt);
-
-    List<ShirtResponse> findByStatus(String status);
 }

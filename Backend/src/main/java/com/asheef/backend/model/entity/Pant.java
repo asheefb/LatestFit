@@ -14,33 +14,12 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Pant {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private Integer customerId;
-
+public class Pant extends Measurement {
     private Double length;
-
     private Double trunk;
-
     private Double hip;
-
     private Double legs;
-
     private Double knee;
-
     private Double bottom;
-
-    private String status;
-
-    private LocalDate createdAt;
-
-    private LocalDate updatedAt;
-
-    private Integer updatedBy;
-
-    private Integer createdBy;
 }
+
