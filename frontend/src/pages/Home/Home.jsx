@@ -21,7 +21,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [userRole] = useState("Admin");
+
+  const roles = JSON.parse(localStorage.getItem("roles")) || [];
 
   const navigate = useNavigate();
 
@@ -130,6 +131,20 @@ export default function Home() {
       action: () => alert("Navigate to Schedule"),
     },
   ];
+
+  function filterQuickAction(action) {
+    if (roles.includes("ROLE_Admin") || roles.includes("ROLE_Developer")) {
+      return true;
+    }
+
+    if (roles.includes("ROLE_Tailor")) {
+      return (
+        action.title !== "Schedule Appointment" &&
+        action.title !== "View Reports"
+      );
+    }
+    return true; // Default for other roles
+  }
 
   const formatTime = (date) => {
     return date.toLocaleTimeString("en-IN", {
@@ -258,7 +273,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {quickActions.map((action, index) => (
+              {quickActions.filter(filterQuickAction).map((action, index) => (
                 <button
                   key={index}
                   onClick={action.action}
@@ -279,117 +294,133 @@ export default function Home() {
           </div>
 
           {/* Today's Appointments */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Calendar className="h-5 w-5 text-blue-500 mr-2" />
-                Today's Appointments
-              </h2>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
-                View All <ArrowRight className="h-4 w-4 ml-1" />
-              </button>
-            </div>
-            <div className="space-y-3">
-              {upcomingAppointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-blue-100 p-2 rounded-full">
-                      <Clock className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {appointment.customer}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {appointment.type}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium text-blue-600">
-                    {appointment.time}
-                  </div>
+          {roles.includes === "ROLE_Admin" ||
+            (roles.includes === "ROLE_Developer" && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Calendar className="h-5 w-5 text-blue-500 mr-2" />
+                    Today's Appointments
+                  </h2>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                    View All <ArrowRight className="h-4 w-4 ml-1" />
+                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className="space-y-3">
+                  {upcomingAppointments.map((appointment) => (
+                    <div
+                      key={appointment.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-blue-100 p-2 rounded-full">
+                          <Clock className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {appointment.customer}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {appointment.type}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-blue-600">
+                        {appointment.time}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
         </div>
 
         {/* Recent Activity & Performance */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Activity */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Activity className="h-5 w-5 text-green-500 mr-2" />
-                Recent Activity
-              </h2>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View All
-              </button>
-            </div>
-            <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                >
-                  <div className={`p-2 rounded-full bg-gray-100`}>
-                    <activity.icon className={`h-4 w-4 ${activity.color}`} />
+        {roles.includes === "ROLE_Admin" ||
+          (roles.includes === "ROLE_Developer" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Recent Activity */}
+              <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Activity className="h-5 w-5 text-green-500 mr-2" />
+                    Recent Activity
+                  </h2>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    View All
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {recentActivities.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      <div className={`p-2 rounded-full bg-gray-100`}>
+                        <activity.icon
+                          className={`h-4 w-4 ${activity.color}`}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">
+                          {activity.message}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {activity.time}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Performance Overview */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Target className="h-5 w-5 text-purple-500 mr-2" />
+                    This Week
+                  </h2>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span className="text-sm text-gray-600">
+                        Measurements
+                      </span>
+                    </div>
+                    <span className="font-semibold text-gray-900">18</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900">{activity.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {activity.time}
-                    </p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm text-gray-600">
+                        New Customers
+                      </span>
+                    </div>
+                    <span className="font-semibold text-gray-900">7</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <span className="text-sm text-gray-600">Growth Rate</span>
+                    </div>
+                    <span className="font-semibold text-green-600">+12%</span>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white text-center">
+                    <div className="text-2xl font-bold">85%</div>
+                    <div className="text-sm opacity-90">
+                      Weekly Goal Progress
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Performance Overview */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Target className="h-5 w-5 text-purple-500 mr-2" />
-                This Week
-              </h2>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm text-gray-600">Measurements</span>
-                </div>
-                <span className="font-semibold text-gray-900">18</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm text-gray-600">New Customers</span>
-                </div>
-                <span className="font-semibold text-gray-900">7</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                  <span className="text-sm text-gray-600">Growth Rate</span>
-                </div>
-                <span className="font-semibold text-green-600">+12%</span>
-              </div>
-
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white text-center">
-                <div className="text-2xl font-bold">85%</div>
-                <div className="text-sm opacity-90">Weekly Goal Progress</div>
               </div>
             </div>
-          </div>
-        </div>
+          ))}
       </div>
     </div>
   );

@@ -10,35 +10,21 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(
-        name = "customer",
-        uniqueConstraints = @UniqueConstraint(columnNames = "phone")
-)
-public class Customer {
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Measurement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
+    private Integer customerId;
 
-    private String phone;
-
-    private String email;
-
-    private String address;
-
-//    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Measurement> measurements;
-
+    private String status;
     private LocalDate createdAt;
-
     private LocalDate updatedAt;
-
     private Integer updatedBy;
-
     private Integer createdBy;
 }

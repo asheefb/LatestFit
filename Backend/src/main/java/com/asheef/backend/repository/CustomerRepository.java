@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query(value = Constants.FIND_CUSTOMERS_BY_SEARCH, nativeQuery = true)
     List<CustomerResponseEntity> findCustomersBySearch(@Param("search") String search);
+
+    List<Customer> findByCreatedAt(LocalDate createdAt);
 }

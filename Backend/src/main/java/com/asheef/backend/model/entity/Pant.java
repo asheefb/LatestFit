@@ -6,28 +6,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Pant {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private Integer customerId;
-
+public class Pant extends Measurement {
     private Double length;
-
     private Double trunk;
-
     private Double hip;
-
     private Double legs;
-
     private Double knee;
-
     private Double bottom;
 }
+

@@ -29,4 +29,9 @@ public class Constants {
     public static final String UNABLE_TO_ADD_MEASUREMENT = "Unable to add measurement";
     public static final String MEASUREMENT_UPDATED_SUCCESSFULLY = "Measurement updated successfully";
     public static final String UNABLE_TO_UPDATE_MEASUREMENT = "Unable to update measurement";
+
+    public static final String COMPLETED_STATUS = "COMPLETED";
+    public static final String PENDING_STATUS = "PENDING";
+    public static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
+    public static final String DO_IT_LATER_STATUS = "DO_IT_LATER";
 }
