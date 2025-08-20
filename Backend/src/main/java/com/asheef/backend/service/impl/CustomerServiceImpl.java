@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -35,8 +36,8 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setPhone(dto.getPhone());
             customer.setEmail(dto.getEmail());
             customer.setAddress(dto.getAddress());
-            customer.setCreatedAt(new Date());
-            customer.setUpdatedAt(new Date());
+            customer.setCreatedAt(LocalDate.now());
+            customer.setUpdatedAt(LocalDate.now());
 
             customerRepository.save(customer);
 
@@ -74,7 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
                 customer.setAddress(dto.getAddress());
             }
 
-            customer.setUpdatedAt(new Date());
+            customer.setUpdatedAt(LocalDate.now());
             customerRepository.save(customer);
 
             return ResponseEntity.ok(

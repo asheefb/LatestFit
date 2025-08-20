@@ -26,6 +26,8 @@ public class ResponseDto {
 
     private String message;
 
+    private List<ErrorDto> errors;
+
     public ResponseDto(Boolean success, Integer statusCode, String message) {
         this.success = success;
         this.statusCode = statusCode;
