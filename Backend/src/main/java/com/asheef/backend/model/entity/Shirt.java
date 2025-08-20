@@ -20,17 +20,17 @@ public class Shirt {
 
     private Integer customerId;
 
-    private double length;
+    private Double length;
 
-    private double chest;
+    private Double chest;
 
-    private double waist;
+    private Double waist;
 
-    private double shoulder;
+    private Double shoulder;
 
-    private double sleeves;
+    private Double sleeves;
 
-    private double cuffLength;
+    private Double cuffLength;
 
-    private double collar;
+    private Double collar;
 }
