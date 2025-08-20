@@ -131,4 +131,12 @@ public class MeasurementServiceImpl implements MeasurementService {
             );
         }
     }
+
+    @Override
+    public ResponseEntity<ResponseDto> viewAllMeasurementsOfCustomer(Integer customerId) {
+
+        return null;
+    }
+
+
 }

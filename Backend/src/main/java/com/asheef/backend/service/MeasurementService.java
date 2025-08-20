@@ -9,4 +9,6 @@ public interface MeasurementService {
     public ResponseEntity<ResponseDto> addMeasurement(MeasurementDto dto);
 
     public ResponseEntity<ResponseDto> updateMeasurement(String id, MeasurementDto dto);
+
+    public ResponseEntity<ResponseDto> viewAllMeasurementsOfCustomer(Integer customerId);
 }
