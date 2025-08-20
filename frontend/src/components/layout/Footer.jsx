@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { 
-  Ruler, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
+import React, { useState } from "react";
+import {
+  Ruler,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Facebook,
+  Twitter,
+  Instagram,
   Linkedin,
   Heart,
   ChevronUp,
   Users,
   BarChart3,
   FileText,
-  Shield
-} from 'lucide-react';
+  Shield,
+} from "lucide-react";
 
 export default function Footer() {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -26,39 +26,67 @@ export default function Footer() {
       setShowScrollTop(window.scrollY > 300);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const quickLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-    { name: 'New Measurement', href: '/measurements/new', icon: Ruler },
-    { name: 'Customer List', href: '/customers', icon: Users },
-    { name: 'Reports', href: '/reports', icon: FileText },
+    { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+    { name: "New Measurement", href: "/measurements/new", icon: Ruler },
+    { name: "Customer List", href: "/customers", icon: Users },
+    { name: "Reports", href: "/reports", icon: FileText },
   ];
 
+  function filteredQucikLinks() {
+    const roles = JSON.parse(localStorage.getItem("roles"));
+    if (!roles || roles.length === 0) return quickLinks;
+
+    if (roles.includes("ROLE_Admin") || roles.includes("ROLE_Developer")) {
+      return quickLinks;
+    }
+    if (roles.includes("ROLE_Tailor")) {
+      return quickLinks.filter((link) => link.name !== "Reports");
+    }
+    return quickLinks;
+  }
+
   const supportLinks = [
-    { name: 'Help Center', href: '/help' },
-    { name: 'User Guide', href: '/guide' },
-    { name: 'Video Tutorials', href: '/tutorials' },
-    { name: 'Contact Support', href: '/support' },
+    { name: "Help Center", href: "/help" },
+    { name: "User Guide", href: "/guide" },
+    { name: "Video Tutorials", href: "/tutorials" },
+    { name: "Contact Support", href: "/support" },
   ];
 
   const legalLinks = [
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Data Security', href: '/security' },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+    { name: "Data Security", href: "/security" },
   ];
 
   const socialLinks = [
-    { name: 'Facebook', icon: Facebook, href: '#', color: 'hover:text-blue-600' },
-    { name: 'Twitter', icon: Twitter, href: '#', color: 'hover:text-blue-400' },
-    { name: 'Instagram', icon: Instagram, href: '#', color: 'hover:text-pink-600' },
-    { name: 'LinkedIn', icon: Linkedin, href: '#', color: 'hover:text-blue-700' },
+    {
+      name: "Facebook",
+      icon: Facebook,
+      href: "#",
+      color: "hover:text-blue-600",
+    },
+    { name: "Twitter", icon: Twitter, href: "#", color: "hover:text-blue-400" },
+    {
+      name: "Instagram",
+      icon: Instagram,
+      href: "#",
+      color: "hover:text-pink-600",
+    },
+    {
+      name: "LinkedIn",
+      icon: Linkedin,
+      href: "#",
+      color: "hover:text-blue-700",
+    },
   ];
 
   return (
@@ -66,7 +94,6 @@ export default function Footer() {
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
@@ -77,14 +104,16 @@ export default function Footer() {
                 <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   LatestFit
                 </h3>
-                <p className="text-xs text-gray-500">Professional Measurement Tool</p>
+                <p className="text-xs text-gray-500">
+                  Professional Measurement Tool
+                </p>
               </div>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Streamline your measurement process with precision and efficiency. 
+              Streamline your measurement process with precision and efficiency.
               {/* Built to make your brother's work easier and more organized. */}
             </p>
-            
+
             {/* Contact Info */}
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -110,17 +139,19 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gray-900 mb-4">Quick Links</h4>
             <ul className="space-y-3">
-              {quickLinks.map(({ name, href, icon: Icon }) => (
-                <li key={name}>
-                  <a 
-                    href={href}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 text-sm"
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{name}</span>
-                  </a>
-                </li>
-              ))}
+              {filteredQucikLinks(quickLinks).map(
+                ({ name, href, icon: Icon }) => (
+                  <li key={name}>
+                    <a
+                      href={href}
+                      className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 text-sm"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{name}</span>
+                    </a>
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
@@ -160,7 +191,9 @@ export default function Footer() {
 
             {/* Social Media */}
             <div>
-              <h5 className="font-medium text-gray-900 mb-3">Connect With Us</h5>
+              <h5 className="font-medium text-gray-900 mb-3">
+                Connect With Us
+              </h5>
               <div className="flex space-x-3">
                 {socialLinks.map(({ name, icon: Icon, href, color }) => (
                   <a
@@ -209,7 +242,7 @@ export default function Footer() {
               <Heart className="h-4 w-4 text-red-500 fill-current" />
               <span>for your business</span>
             </div>
-            
+
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <span>Version 1.0.0</span>
               <span>•</span>

@@ -1,5 +1,6 @@
 package com.asheef.backend.model.entity;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -8,10 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class Shirt {
 
     @Id
@@ -33,4 +38,14 @@ public class Shirt {
     private Double cuffLength;
 
     private Double collar;
+
+    private String status;
+
+    private LocalDate createdAt;
+
+    private LocalDate updatedAt;
+
+    private Integer updatedBy;
+
+    private Integer createdBy;
 }

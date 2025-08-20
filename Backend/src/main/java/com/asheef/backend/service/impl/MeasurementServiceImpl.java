@@ -4,6 +4,7 @@ import com.asheef.backend.constants.Constants;
 import com.asheef.backend.model.dto.MeasurementDto;
 import com.asheef.backend.model.entity.Pant;
 import com.asheef.backend.model.entity.Shirt;
+import com.asheef.backend.model.response.DashBoardItems;
 import com.asheef.backend.repository.CustomerRepository;
 import com.asheef.backend.repository.measurement.PantRepository;
 import com.asheef.backend.repository.measurement.ShirtRepository;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -134,6 +138,31 @@ public class MeasurementServiceImpl implements MeasurementService {
 
     @Override
     public ResponseEntity<ResponseDto> viewAllMeasurementsOfCustomer(Integer customerId) {
+
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<ResponseDto> calculateDashboardItems(Integer userId) {
+
+        try {
+            DashBoardItems items = new DashBoardItems();
+            LocalDate today = LocalDate.now();
+
+            List<Shirt> shirts = shirtRepository.findByCreatedAt(today);
+            List<Pant> pants = pantRepository.findByCreatedAt(today);
+
+            Integer customerCount = customerRepository.findByCreatedAt(today).size();
+
+            Integer count = shirts.size() + pants.size();
+
+            items.setMeasurementsToday(String.valueOf(count));
+            items.setNewCustomers(String.valueOf(customerCount));
+
+
+        } catch (Exception e) {
+
+        }
 
         return null;
     }

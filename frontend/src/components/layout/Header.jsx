@@ -12,6 +12,9 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
+  const roles = JSON.parse(localStorage.getItem("roles"));
+  console.log(roles);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [islogin, setIsLogin] = useState(false);
@@ -43,6 +46,19 @@ export default function Header() {
     { id: "reports", label: "Reports", icon: BarChart3, path: "/reports" },
   ];
 
+  function filterMenuItemsByRole(items, roles) {
+    console.log(items);
+    if (!roles || roles.length === 0) return items;
+
+    if (roles.includes("ROLE_Admin") || roles.includes("ROLE_Developer")) {
+      console.log("In Admin/Developer Role");
+      return items;
+    }
+    if (roles.includes("ROLE_Tailor")) {
+      return items.filter((item) => item.id !== "reports");
+    }
+  }
+
   const handleNavigation = (id, path) => {
     setActiveTab(id);
     navigate(path);
@@ -72,20 +88,22 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="md:flex space-x-1">
-            {menuItems.map(({ id, label, icon: Icon, path }) => (
-              <button
-                key={id}
-                onClick={() => handleNavigation(id, path)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  activeTab === id
-                    ? "bg-blue-100 text-blue-700 shadow-md"
-                    : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-              </button>
-            ))}
+            {filterMenuItemsByRole(menuItems, roles).map(
+              ({ id, label, icon: Icon, path }) => (
+                <button
+                  key={id}
+                  onClick={() => handleNavigation(id, path)}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    activeTab === id
+                      ? "bg-blue-100 text-blue-700 shadow-md"
+                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{label}</span>
+                </button>
+              )
+            )}
           </nav>
 
           {/* Right Side Actions */}

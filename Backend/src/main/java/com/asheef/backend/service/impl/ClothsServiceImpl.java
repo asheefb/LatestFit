@@ -28,7 +28,6 @@ public class ClothsServiceImpl implements ClothsService {
 
     @Override
     public ResponseEntity<ResponseDto> getClothsByCustomerId(Integer customerId) {
-
         try {
             CustomerClothes customerClothes = new CustomerClothes();
 

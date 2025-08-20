@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -30,4 +33,14 @@ public class Pant {
     private Double knee;
 
     private Double bottom;
+
+    private String status;
+
+    private LocalDate createdAt;
+
+    private LocalDate updatedAt;
+
+    private Integer updatedBy;
+
+    private Integer createdBy;
 }
