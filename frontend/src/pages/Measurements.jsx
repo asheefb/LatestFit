@@ -9,89 +9,51 @@ import {
   Trash2,
   Save,
   X,
+  Loader,
+  AlertCircle,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import MeasurementService from "../services/measurementService";
+import CustomerService from "../services/CustomerService";
 
 const MeasurementsComponent = () => {
-  const [measurements, setMeasurements] = useState([
-    {
-      id: 1,
-      customerId: 1,
-      customerName: "John Smith",
-      date: "2024-01-15",
-      type: "Suit",
-      measurements: {
-        chest: 40,
-        waist: 34,
-        hips: 38,
-        shoulders: 18,
-        sleeves: 25,
-        neck: 16,
-        inseam: 32,
-        outseam: 42,
-      },
-      notes: "Standard business suit, prefers slim fit",
-    },
-    {
-      id: 2,
-      customerId: 2,
-      customerName: "Sarah Johnson",
-      date: "2024-01-10",
-      type: "Dress",
-      measurements: {
-        bust: 36,
-        waist: 28,
-        hips: 38,
-        shoulders: 16,
-        sleeves: 23,
-        length: 45,
-        armhole: 18,
-      },
-      notes: "Evening dress, requires alterations",
-    },
-    {
-      id: 3,
-      customerId: 1,
-      customerName: "John Smith",
-      date: "2024-01-08",
-      type: "Pants",
-      measurements: {
-        waist: 34,
-        hips: 38,
-        inseam: 32,
-        outseam: 42,
-        thigh: 22,
-        knee: 16,
-        cuff: 14,
-      },
-      notes: "Casual pants, regular fit",
-    },
-  ]);
-
+  const [measurements, setMeasurements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [editingMeasurement, setEditingMeasurement] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    if (location.state?.autoOpen) {
-      handleAddMeasurement();
-    }
-  }, [location.state]);
-
+  // Initialize form data with proper structure matching your backend
   const [formData, setFormData] = useState({
     customerId: "",
-    customerName: "",
     type: "Suit",
-    measurements: {},
-    notes: "",
+    status: "Pending",
+    // Pants measurements
+    pantLength: "",
+    pantTrunk: "",
+    pantHip: "",
+    pantLegs: "",
+    pantKnee: "",
+    pantBottom: "",
+    // Shirt measurements
+    shirtLength: "",
+    shirtChest: "",
+    shirtWaist: "",
+    shirtShoulder: "",
+    shirtSleeves: "",
+    shirtCoupLength: "",
+    shirtCollar: "",
+    additionalComments: "",
   });
 
-  // Sample customers for the form
+  // Sample customers - you might want to fetch this from an API too
   const customers = [
-    { id: 1, name: "John Smith" },
-    { id: 2, name: "Sarah Johnson" },
+    { id: 101, name: "John Smith" },
+    { id: 102, name: "Sarah Johnson" },
     { id: 3, name: "Mike Davis" },
     { id: 4, name: "Emily Brown" },
   ];
@@ -100,59 +62,132 @@ const MeasurementsComponent = () => {
     "Suit",
     "Dress",
     "Shirt",
-    "Pants",
+    "Pant",
     "Jacket",
     "Skirt",
   ];
 
+  const status = ["Pending", "Completed", "In Progress"];
+
+  // Updated measurement fields to match your form structure
   const measurementFields = {
+    Pant: [
+      { key: "pantLength", label: "Length" },
+      { key: "pantTrunk", label: "Trunk" },
+      { key: "pantHip", label: "Hip" },
+      { key: "pantLegs", label: "Legs" },
+      { key: "pantKnee", label: "Knee" },
+      { key: "pantBottom", label: "Bottom" },
+    ],
+    Shirt: [
+      { key: "shirtLength", label: "Length" },
+      { key: "shirtChest", label: "Chest" },
+      { key: "shirtWaist", label: "Waist" },
+      { key: "shirtShoulder", label: "Shoulder" },
+      { key: "shirtSleeves", label: "Sleeves" },
+      { key: "shirtCoupLength", label: "Coup Length" },
+      { key: "shirtCollar", label: "Collar" },
+    ],
     Suit: [
-      "chest",
-      "waist",
-      "hips",
-      "shoulders",
-      "sleeves",
-      "neck",
-      "inseam",
-      "outseam",
+      { key: "shirtLength", label: "Length" },
+      { key: "shirtChest", label: "Chest" },
+      { key: "shirtWaist", label: "Waist" },
+      { key: "shirtShoulder", label: "Shoulder" },
+      { key: "shirtSleeves", label: "Sleeves" },
+      { key: "pantLength", label: "Pant Length" },
+      { key: "pantTrunk", label: "Trunk" },
+      { key: "pantHip", label: "Hip" },
     ],
     Dress: [
-      "bust",
-      "waist",
-      "hips",
-      "shoulders",
-      "sleeves",
-      "length",
-      "armhole",
+      { key: "shirtLength", label: "Length" },
+      { key: "shirtChest", label: "Bust" },
+      { key: "shirtWaist", label: "Waist" },
+      { key: "shirtShoulder", label: "Shoulder" },
+      { key: "shirtSleeves", label: "Sleeves" },
     ],
-    Shirt: ["chest", "waist", "shoulders", "sleeves", "neck", "length"],
-    Pants: ["waist", "hips", "inseam", "outseam", "thigh", "knee", "cuff"],
-    Jacket: ["chest", "waist", "shoulders", "sleeves", "length"],
-    Skirt: ["waist", "hips", "length"],
+    Jacket: [
+      { key: "shirtChest", label: "Chest" },
+      { key: "shirtWaist", label: "Waist" },
+      { key: "shirtShoulder", label: "Shoulder" },
+      { key: "shirtSleeves", label: "Sleeves" },
+      { key: "shirtLength", label: "Length" },
+    ],
+    Skirt: [
+      { key: "shirtWaist", label: "Waist" },
+      { key: "pantHip", label: "Hip" },
+      { key: "shirtLength", label: "Length" },
+    ],
+  };
+
+  // Load measurements on component mount
+  // useEffect(() => {
+  //   loadMeasurements();
+  // }, []);
+
+  useEffect(() => {
+    if (location.state?.autoOpen) {
+      handleAddMeasurement();
+    }
+  }, [location.state]);
+
+  const loadMeasurements = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const userId = 1; // Replace with actual user ID from auth context
+      const response = await new MeasurementService().dashboardItems(userId);
+
+      setMeasurements(response.data || response || []);
+    } catch (err) {
+      console.error("Error loading measurements:", err);
+      setError("Failed to load measurements. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredMeasurements = measurements.filter((measurement) => {
-    const matchesSearch =
-      measurement.customerName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      measurement.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      measurement.notes.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchFields = [
+      measurement.customerName,
+      measurement.type,
+      measurement.additionalComments || measurement.notes,
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    const matchesSearch = searchFields.includes(searchTerm.toLowerCase());
     const matchesType =
       selectedType === "all" || measurement.type === selectedType;
     return matchesSearch && matchesType;
   });
 
+  const resetForm = () => {
+    setFormData({
+      customerId: "",
+      type: "Suit",
+      status: "Pending",
+      pantLength: "",
+      pantTrunk: "",
+      pantHip: "",
+      pantLegs: "",
+      pantKnee: "",
+      pantBottom: "",
+      shirtLength: "",
+      shirtChest: "",
+      shirtWaist: "",
+      shirtShoulder: "",
+      shirtSleeves: "",
+      shirtCoupLength: "",
+      shirtCollar: "",
+      additionalComments: "",
+    });
+  };
+
   const handleAddMeasurement = () => {
     setShowForm(true);
     setEditingMeasurement(null);
-    setFormData({
-      customerId: "",
-      customerName: "",
-      type: "Suit",
-      measurements: {},
-      notes: "",
-    });
+    resetForm();
   };
 
   const handleEditMeasurement = (measurement) => {
@@ -162,13 +197,39 @@ const MeasurementsComponent = () => {
       customerId: measurement.customerId,
       customerName: measurement.customerName,
       type: measurement.type,
-      measurements: { ...measurement.measurements },
-      notes: measurement.notes,
+      pantLength: measurement.pantLength || "",
+      pantTrunk: measurement.pantTrunk || "",
+      pantHip: measurement.pantHip || "",
+      pantLegs: measurement.pantLegs || "",
+      pantKnee: measurement.pantKnee || "",
+      pantBottom: measurement.pantBottom || "",
+      shirtLength: measurement.shirtLength || "",
+      shirtChest: measurement.shirtChest || "",
+      shirtWaist: measurement.shirtWaist || "",
+      shirtShoulder: measurement.shirtShoulder || "",
+      shirtSleeves: measurement.shirtSleeves || "",
+      shirtCoupLength: measurement.shirtCoupLength || "",
+      shirtCollar: measurement.shirtCollar || "",
+      additionalComments:
+        measurement.additionalComments || measurement.notes || "",
     });
   };
 
-  const handleDeleteMeasurement = (id) => {
-    setMeasurements(measurements.filter((m) => m.id !== id));
+  const handleDeleteMeasurement = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this measurement?")) {
+      return;
+    }
+
+    try {
+      // Note: You'll need to implement a delete method in MeasurementService
+      // await new MeasurementService().deleteMeasurement(id);
+
+      // For now, just remove from state
+      setMeasurements(measurements.filter((m) => m.id !== id));
+    } catch (err) {
+      console.error("Error deleting measurement:", err);
+      alert("Failed to delete measurement. Please try again.");
+    }
   };
 
   const handleCustomerChange = (customerId) => {
@@ -178,50 +239,102 @@ const MeasurementsComponent = () => {
       customerId: parseInt(customerId),
       customerName: customer ? customer.name : "",
     }));
-  };
 
-  const handleMeasurementChange = (field, value) => {
+    // const customer = CustomerService.viewAllCustomersBySearch(customerId);
     setFormData((prev) => ({
       ...prev,
-      measurements: {
-        ...prev.measurements,
-        [field]: parseFloat(value) || 0,
-      },
+      customerId: customerId,
+      customerName: customer ? customer.name : "",
     }));
   };
 
-  const handleSubmit = () => {
-    if (!formData.customerId || !formData.customerName) return;
+  const handleFieldChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-    if (editingMeasurement) {
-      setMeasurements(
-        measurements.map((m) =>
-          m.id === editingMeasurement
-            ? {
-                ...m,
-                ...formData,
-                date: new Date().toISOString().split("T")[0],
-              }
-            : m
-        )
-      );
-    } else {
-      const newMeasurement = {
-        id: Math.max(...measurements.map((m) => m.id)) + 1,
-        ...formData,
-        date: new Date().toISOString().split("T")[0],
-      };
-      setMeasurements([newMeasurement, ...measurements]);
+  const handleSubmit = async () => {
+    if (!formData.customerId || !formData.customerName) {
+      alert("Please select a customer");
+      return;
     }
 
-    setShowForm(false);
-    setEditingMeasurement(null);
+    try {
+      setSubmitting(true);
+      const measurementService = new MeasurementService();
+
+      if (editingMeasurement) {
+        const response = await measurementService.updateMeasurement(
+          editingMeasurement,
+          formData
+        );
+
+        // Update the measurement in state
+        setMeasurements(
+          measurements.map((m) =>
+            m.id === editingMeasurement
+              ? { ...response, id: editingMeasurement }
+              : m
+          )
+        );
+      } else {
+        const response = await measurementService.addMeasurement(formData);
+
+        // Add new measurement to state
+        setMeasurements([response, ...measurements]);
+      }
+
+      setShowForm(false);
+      setEditingMeasurement(null);
+      resetForm();
+    } catch (err) {
+      console.error("Error saving measurement:", err);
+      alert("Failed to save measurement. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
     setShowForm(false);
     setEditingMeasurement(null);
+    resetForm();
   };
+
+  // // Loading state
+  // if (loading) {
+  //   return (
+  //     <div className="max-w-7xl mx-auto p-6">
+  //       <div className="flex items-center justify-center h-64">
+  //         <Loader className="h-8 w-8 animate-spin text-blue-600" />
+  //         <span className="ml-2 text-gray-600">Loading measurements...</span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-red-900 mb-2">
+            Error Loading Data
+          </h3>
+          <p className="text-red-700 mb-4">{error}</p>
+          <button
+            onClick={loadMeasurements}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -253,6 +366,7 @@ const MeasurementsComponent = () => {
               <button
                 onClick={handleCancel}
                 className="text-gray-500 hover:text-gray-700"
+                disabled={submitting}
               >
                 <X className="h-6 w-6" />
               </button>
@@ -263,13 +377,14 @@ const MeasurementsComponent = () => {
                 {/* Customer Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Customer
+                    Customer *
                   </label>
                   <select
                     value={formData.customerId}
                     onChange={(e) => handleCustomerChange(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
+                    disabled={submitting}
                   >
                     <option value="">Select a customer</option>
                     {customers.map((customer) => (
@@ -283,19 +398,14 @@ const MeasurementsComponent = () => {
                 {/* Measurement Type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type
+                    Type *
                   </label>
                   <select
                     value={formData.type}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        type: e.target.value,
-                        measurements: {},
-                      }))
-                    }
+                    onChange={(e) => handleFieldChange("type", e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
+                    disabled={submitting}
                   >
                     {measurementTypes.map((type) => (
                       <option key={type} value={type}>
@@ -307,43 +417,47 @@ const MeasurementsComponent = () => {
               </div>
 
               {/* Measurements Grid */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-4">
-                  Measurements (inches)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {measurementFields[formData.type]?.map((field) => (
-                    <div key={field}>
-                      <label className="block text-xs font-medium text-gray-600 mb-1 capitalize">
-                        {field}
-                      </label>
-                      <input
-                        type="number"
-                        step="0.25"
-                        value={formData.measurements[field] || ""}
-                        onChange={(e) =>
-                          handleMeasurementChange(field, e.target.value)
-                        }
-                        className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  ))}
+              {measurementFields[formData.type] && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    Measurements (inches)
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {measurementFields[formData.type].map((field) => (
+                      <div key={field.key}>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          {field.label}
+                        </label>
+                        <input
+                          type="number"
+                          step="0.25"
+                          value={formData[field.key] || ""}
+                          onChange={(e) =>
+                            handleFieldChange(field.key, e.target.value)
+                          }
+                          className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="0.00"
+                          disabled={submitting}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Notes */}
+              {/* Additional Comments */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
+                  Additional Comments
                 </label>
                 <textarea
-                  value={formData.notes}
+                  value={formData.additionalComments}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                    handleFieldChange("additionalComments", e.target.value)
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 h-20 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Any additional notes or special requirements..."
+                  disabled={submitting}
                 />
               </div>
 
@@ -352,16 +466,27 @@ const MeasurementsComponent = () => {
                   type="button"
                   onClick={handleCancel}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  disabled={submitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
+                  disabled={submitting}
                 >
-                  <Save className="h-4 w-4" />
-                  {editingMeasurement ? "Update" : "Save"} Measurement
+                  {submitting ? (
+                    <Loader className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {submitting
+                    ? "Saving..."
+                    : editingMeasurement
+                    ? "Update"
+                    : "Save"}{" "}
+                  Measurement
                 </button>
               </div>
             </div>
@@ -397,6 +522,14 @@ const MeasurementsComponent = () => {
               </option>
             ))}
           </select>
+
+          {/* Refresh Button */}
+          <button
+            onClick={loadMeasurements}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Refresh
+          </button>
         </div>
       </div>
 
@@ -444,10 +577,12 @@ const MeasurementsComponent = () => {
                           <span className="bg-gray-100 px-2 py-1 rounded">
                             {measurement.type}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(measurement.date).toLocaleDateString()}
-                          </span>
+                          {measurement.date && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(measurement.date).toLocaleDateString()}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -455,27 +590,30 @@ const MeasurementsComponent = () => {
                     {/* Measurements Display */}
                     <div className="mt-4">
                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {Object.entries(measurement.measurements).map(
-                          ([key, value]) => (
+                        {measurementFields[measurement.type]?.map((field) => {
+                          const value = measurement[field.key];
+                          if (!value) return null;
+
+                          return (
                             <div
-                              key={key}
+                              key={field.key}
                               className="bg-gray-50 p-2 rounded text-center"
                             >
-                              <div className="text-xs text-gray-600 capitalize">
-                                {key}
+                              <div className="text-xs text-gray-600">
+                                {field.label}
                               </div>
                               <div className="font-medium">{value}"</div>
                             </div>
-                          )
-                        )}
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* Notes */}
-                    {measurement.notes && (
+                    {/* Additional Comments */}
+                    {(measurement.additionalComments || measurement.notes) && (
                       <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
                         <p className="text-sm text-gray-700">
-                          {measurement.notes}
+                          {measurement.additionalComments || measurement.notes}
                         </p>
                       </div>
                     )}
