@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class LoginResponse {
+    private String userId;
     private String jwt;
     private List<String> roles;
 }
