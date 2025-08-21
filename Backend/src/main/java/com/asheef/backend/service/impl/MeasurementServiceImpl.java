@@ -2,24 +2,32 @@ package com.asheef.backend.service.impl;
 
 import com.asheef.backend.constants.Constants;
 import com.asheef.backend.model.dto.MeasurementDto;
+import com.asheef.backend.model.dto.ViewAllMeasurementDto;
+import com.asheef.backend.model.entity.Measurement;
 import com.asheef.backend.model.entity.Pant;
 import com.asheef.backend.model.entity.Shirt;
 import com.asheef.backend.model.response.DashBoardItems;
+import com.asheef.backend.model.response.MeasurementResponseEntity;
 import com.asheef.backend.repository.CustomerRepository;
 import com.asheef.backend.repository.measurement.MeasurementRepository;
 import com.asheef.backend.repository.measurement.PantRepository;
 import com.asheef.backend.repository.measurement.ShirtRepository;
 import com.asheef.backend.service.MeasurementService;
 import com.asheef.backend.utils.ResponseDto;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
+
+import jakarta.persistence.criteria.Predicate;
+
 
 @Service
 public class MeasurementServiceImpl implements MeasurementService {
@@ -28,15 +36,17 @@ public class MeasurementServiceImpl implements MeasurementService {
     private final PantRepository pantRepository;
     private final ShirtRepository shirtRepository;
     private final MeasurementRepository measurementRepository;
+    private final EntityManager entityManager;
 
     public MeasurementServiceImpl(CustomerRepository customerRepository,
                                   PantRepository pantRepository,
                                   ShirtRepository shirtRepository,
-                                  MeasurementRepository measurementRepository) {
+                                  MeasurementRepository measurementRepository, EntityManager entityManager) {
         this.customerRepository = customerRepository;
         this.pantRepository = pantRepository;
         this.shirtRepository = shirtRepository;
         this.measurementRepository = measurementRepository;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -174,4 +184,83 @@ public class MeasurementServiceImpl implements MeasurementService {
             );
         }
     }
+
+    @Override
+    public ResponseEntity<ResponseDto> viewAllMeasurements(ViewAllMeasurementDto dto) {
+        try {
+
+            List<MeasurementResponseEntity> response = createQuery(dto);
+
+            if (response.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), List.of())
+                );
+            }
+
+            return ResponseEntity.ok(
+                    new ResponseDto(Boolean.TRUE, HttpStatus.OK.value(), response)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.unprocessableEntity().body(
+                    new ResponseDto(Boolean.FALSE, HttpStatus.UNPROCESSABLE_ENTITY.value(), Constants.ERROR_FETCHING_MEASUREMENTS)
+            );
+        }
+    }
+
+    private List<MeasurementResponseEntity> createQuery(ViewAllMeasurementDto dto) {
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Measurement> query = cb.createQuery(Measurement.class);
+        Root<Measurement> from = query.from(Measurement.class);
+
+        if (dto.getType() != null && !dto.getType().isEmpty())
+            predicates.add(cb.equal(from.get("type"), dto.getType()));
+
+        if (dto.getStatus() != null && !dto.getStatus().isEmpty())
+            predicates.add(cb.equal(from.get("status"), dto.getStatus()));
+
+
+        query.where(predicates.toArray(new Predicate[0]))
+                .orderBy(cb.desc(from.get("updated_at")));
+
+        List<Measurement> resultList = entityManager.createQuery(query).getResultList();
+
+        // Convert Entity -> Response DTO
+        return resultList.stream().map(this::mapToResponse).toList();
+    }
+
+    private MeasurementResponseEntity mapToResponse(Measurement measurement) {
+        MeasurementResponseEntity response = new MeasurementResponseEntity();
+
+        response.setMeasurementId(String.valueOf(measurement.getId()));
+        response.setCustomerId(String.valueOf(measurement.getCustomerId()));
+        response.setType(measurement.getType());
+        response.setStatus(measurement.getStatus());
+
+        // Handle Shirt
+        if (measurement instanceof Shirt shirt) {
+            response.setLength(String.valueOf(shirt.getLength()));
+            response.setChest(String.valueOf(shirt.getChest()));
+            response.setWaist(String.valueOf(shirt.getWaist()));
+            response.setShoulder(String.valueOf(shirt.getShoulder()));
+            response.setSleeves(String.valueOf(shirt.getSleeves()));
+            response.setCuffLength(String.valueOf(shirt.getCuffLength()));
+            response.setCollar(String.valueOf(shirt.getCollar()));
+        }
+
+        // Handle Pant
+        if (measurement instanceof Pant pant) {
+            response.setPantLength(String.valueOf(pant.getLength()));
+            response.setPantTrunk(String.valueOf(pant.getTrunk()));
+            response.setPantHip(String.valueOf(pant.getHip()));
+            response.setPantLegs(String.valueOf(pant.getLegs()));
+            response.setPantKnee(String.valueOf(pant.getKnee()));
+            response.setPantBottom(String.valueOf(pant.getBottom()));
+        }
+
+        return response;
+    }
+
 }
