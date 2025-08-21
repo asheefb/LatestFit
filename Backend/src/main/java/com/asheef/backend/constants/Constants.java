@@ -35,4 +35,5 @@ public class Constants {
     public static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
     public static final String DO_IT_LATER_STATUS = "DO_IT_LATER";
     public static final String USER_NOT_FOUND = "User not found";
+    public static final String ERROR_FETCHING_MEASUREMENTS = "Error fetching measurements";
 }

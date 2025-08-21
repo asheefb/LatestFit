@@ -23,6 +23,7 @@ public abstract class Measurement {
     private Integer customerId;
 
     private String status;
+    private String type;
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private Integer updatedBy;
