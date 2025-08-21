@@ -15,7 +15,6 @@ import com.asheef.backend.repository.measurement.ShirtRepository;
 import com.asheef.backend.service.MeasurementService;
 import com.asheef.backend.utils.ResponseDto;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
