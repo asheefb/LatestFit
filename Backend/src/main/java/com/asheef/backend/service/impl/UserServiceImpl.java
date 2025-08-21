@@ -55,26 +55,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<LoginResponse> login(LoginDto dto) {
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
-        );
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = jwtUtils.generateTocken(authentication.getName());
+            String token = jwtUtils.generateTocken(authentication.getName());
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        var roles = userDetails.getAuthorities()
-                .stream()
-                .map(auth -> auth.getAuthority())
-                .collect(Collectors.toList());
+            var roles = userDetails.getAuthorities()
+                    .stream()
+                    .map(auth -> auth.getAuthority())
+                    .collect(Collectors.toList());
 
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setJwt(token);
-        loginResponse.setRoles(roles);
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new NoSuchElementException(Constants.USER_NOT_FOUND));
 
-        return ResponseEntity.ok(loginResponse);
+
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setUserId(String.valueOf(user.getId()));
+            loginResponse.setJwt(token);
+            loginResponse.setRoles(roles);
+
+            return ResponseEntity.ok(loginResponse);
     }
 
     @Override

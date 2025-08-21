@@ -34,4 +34,5 @@ public class Constants {
     public static final String PENDING_STATUS = "PENDING";
     public static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
     public static final String DO_IT_LATER_STATUS = "DO_IT_LATER";
+    public static final String USER_NOT_FOUND = "User not found";
 }

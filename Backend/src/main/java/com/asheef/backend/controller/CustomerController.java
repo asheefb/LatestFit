@@ -36,6 +36,7 @@ public class CustomerController {
 
     @GetMapping("/search")
     public ResponseEntity<ResponseDto> searchCustomers(String regex) {
+
         return customerService.searchCustomers(regex);
     }
 }
