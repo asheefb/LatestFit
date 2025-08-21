@@ -8,5 +8,4 @@ import java.util.Date;
 public class ViewAllMeasurementDto {
     private String type;
     private String status;
-    private Date updatedAt;
 }

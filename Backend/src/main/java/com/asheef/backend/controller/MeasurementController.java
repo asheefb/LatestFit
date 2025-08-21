@@ -38,7 +38,7 @@ public class MeasurementController {
     }
 
     @GetMapping("/viewAll")
-    public ResponseEntity<ResponseDto> viewAllMeasurements(ViewAllMeasurementDto dto) {
+    public ResponseEntity<ResponseDto> viewAllMeasurements(@ModelAttribute ViewAllMeasurementDto dto) {
         return measurementService.viewAllMeasurements(dto);
     }
 
