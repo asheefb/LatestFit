@@ -56,10 +56,12 @@ public class MeasurementServiceImpl implements MeasurementService {
                 pant.setCustomerId(Integer.valueOf(dto.getCustomerId()));
                 pant.setLength(Double.valueOf(dto.getPantLength()));
                 pant.setTrunk(Double.valueOf(dto.getPantTrunk()));
+                pant.setAdditionalComments(dto.getAdditionalComments());
                 pant.setHip(Double.valueOf(dto.getPantHip()));
                 pant.setLegs(Double.valueOf(dto.getPantLegs()));
                 pant.setKnee(Double.valueOf(dto.getPantKnee()));
                 pant.setBottom(Double.valueOf(dto.getPantBottom()));
+                pant.setStatus(dto.getStatus());
                 pant.setCreatedAt(LocalDate.now());
                 pantRepository.save(pant);
 
@@ -68,6 +70,8 @@ public class MeasurementServiceImpl implements MeasurementService {
                 shirt.setCustomerId(Integer.valueOf(dto.getCustomerId()));
                 shirt.setLength(Double.parseDouble(dto.getShirtLength()));
                 shirt.setChest(Double.parseDouble(dto.getShirtChest()));
+                shirt.setAdditionalComments(dto.getAdditionalComments());
+                shirt.setStatus(dto.getStatus());
                 shirt.setWaist(Double.parseDouble(dto.getShirtWaist()));
                 shirt.setShoulder(Double.parseDouble(dto.getShirtShoulder()));
                 shirt.setSleeves(Double.parseDouble(dto.getShirtSleeves()));
