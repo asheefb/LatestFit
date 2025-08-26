@@ -24,6 +24,7 @@ public abstract class Measurement {
 
     private String status;
     private String type;
+    private String additionalComments;
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private Integer updatedBy;

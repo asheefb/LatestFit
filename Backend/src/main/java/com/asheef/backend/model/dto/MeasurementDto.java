@@ -27,5 +27,6 @@ public class MeasurementDto {
     private String shirtCoupLength;
     private String shirtCollar;
 
+    private String status;
     private String additionalComments;
 }
